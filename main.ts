@@ -1,7 +1,8 @@
-// ai-excited-01: "Aurora Phoenix" — a deterministic, stdlib-only procedural painting.
-// Node 22, no dependencies, no network. Renders a 1024x1024 scene to
+// ai-excited-01: "Aurora Phoenix" — deterministic, stdlib-only procedural painting.
+// Node 22, zero dependencies, no network. Renders a 1024x1024 scene to
 // /output/entry.png (or $MAKEFUN_OUTPUT_DIR): a fire-phoenix bursting out of
-// a mountain lake under vivid aurora ribbons, stars, and a glowing comet tail.
+// a mountain lake under vivid aurora ribbons, with a starfield, a shooting
+// comet, an ember tail, a tiny lantern-holding watcher, and a lake reflection.
 // The same seed always produces the same bytes.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -157,6 +158,38 @@ for (let s = 0; s < 420; s++) {
   }
 }
 
+// ---- 3b. A shooting comet streaking toward the phoenix ----
+{
+  const hx = 60, hy = 70;         // head of the comet, upper left
+  const tx = 330, ty = 190;       // tail end, closer to the burst
+  glow(hx, hy, 26, 220, 240, 255, 0.9);
+  glow(hx, hy, 9, 255, 255, 255, 1.1);
+  for (let k = 0; k <= 24; k++) {
+    const t = k / 24;
+    const cx = hx + (tx - hx) * t;
+    const cy = hy + (ty - hy) * t;
+    const w = 5.5 * (1 - t) + 0.8;
+    glow(cx, cy, w, 200, 225, 255, 0.75 * (1 - t * 0.6));
+  }
+  stroke([[hx, hy], [tx, ty]], 2.2, 235, 245, 255, 0.9);
+}
+
+// A second, fainter comet in the upper right, for balance — its head
+// flares as it dives toward the ridge.
+{
+  const hx = 930, hy = 120;
+  const tx = 790, ty = 230;
+  glow(hx, hy, 14, 200, 225, 255, 0.7);
+  glow(hx, hy, 5, 255, 255, 255, 0.9);
+  for (let k = 0; k <= 16; k++) {
+    const t = k / 16;
+    const cx = hx + (tx - hx) * t;
+    const cy = hy + (ty - hy) * t;
+    glow(cx, cy, 3.5 * (1 - t) + 0.6, 190, 215, 255, 0.5 * (1 - t * 0.6));
+  }
+  stroke([[hx, hy], [tx, ty]], 1.6, 225, 235, 255, 0.7);
+}
+
 // ---- 4. Aurora ribbons (diagonal, curtain-like) ----
 function aurora(yBase, amp, phase, r, g, b, thick, strength) {
   for (let x = 0; x < W; x += 2) {
@@ -273,6 +306,7 @@ const nearRidgeY = ridge(4.2, 760, 120, [9, 8, 28]);    // near ridge
   stroke([[wx - 3, feetY - 22], [wx - 16, feetY - 36]], 2, 4, 4, 10, 1.0);
   stroke([[wx + 3, feetY - 22], [wx + 16, feetY - 36]], 2, 4, 4, 10, 1.0);
   glow(wx + 24, feetY - 40, 7, 255, 190, 90, 0.8); // tiny lantern in hand
+  glow(wx + 24, feetY - 4, 18, 255, 170, 70, 0.35); // warm light pool on the ridge
 })();
 
 // ---- 7. Lake: mirror of the burst + aurora, bottom band ----
